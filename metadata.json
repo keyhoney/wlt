@@ -1,0 +1,7 @@
+{
+  "name": "Woo Sae-byuk Vocal Academy's Lyric Translation System",
+  "description": "A Korean-English lyrics translation web app.",
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
