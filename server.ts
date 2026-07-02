@@ -4,7 +4,7 @@ import { existsSync } from "fs";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import { buildSystemInstruction, GEMINI_MODEL } from "./shared/translate-prompt";
+import { buildSystemInstruction, GEMINI_MODEL } from "./functions/_lib/translate-prompt";
 
 if (existsSync(".env.local")) {
   dotenv.config({ path: ".env.local" });

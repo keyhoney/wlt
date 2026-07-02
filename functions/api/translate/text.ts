@@ -1,4 +1,4 @@
-import { buildSystemInstruction, GEMINI_MODEL } from '../../../shared/translate-prompt';
+import { buildSystemInstruction, GEMINI_MODEL } from '../../_lib/translate-prompt';
 
 interface Env {
   GEMINI_API_KEY: string;
@@ -12,6 +12,10 @@ export const onRequestPost = async (context: { request: Request; env: Env }) => 
     }
 
     const { text, tone } = (await context.request.json()) as { text?: string; tone?: string };
+    if (!text?.trim()) {
+      return Response.json({ error: '가사를 입력해주세요' }, { status: 400 });
+    }
+
     const systemInstruction = buildSystemInstruction(tone);
 
     const geminiRes = await fetch(
@@ -31,14 +35,20 @@ export const onRequestPost = async (context: { request: Request; env: Env }) => 
     );
 
     if (!geminiRes.ok) {
-      console.error('Gemini API error:', await geminiRes.text());
+      const geminiError = await geminiRes.text();
+      console.error('Gemini API error:', geminiRes.status, geminiError);
       return Response.json({ error: '번역에 실패했습니다' }, { status: 500 });
     }
 
     const data = (await geminiRes.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
-    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!responseText) {
+      console.error('Gemini API returned empty response:', JSON.stringify(data));
+      return Response.json({ error: '번역 결과가 비어 있습니다' }, { status: 500 });
+    }
+
     const result = JSON.parse(responseText);
     return Response.json({ result });
   } catch (error) {
